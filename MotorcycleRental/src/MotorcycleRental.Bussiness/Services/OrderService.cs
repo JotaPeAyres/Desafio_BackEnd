@@ -37,7 +37,7 @@ namespace MotorcycleRental.Bussiness.Services
 
             var deliveryMenAvailable = _deliveryManRepository.GetDeliveryManAvailable();
 
-            if(deliveryMenAvailable == null)
+            if(deliveryMenAvailable.Count() == 0)
             {
                 Notify("No delivery man available to create an order");
                 return;   
@@ -45,6 +45,8 @@ namespace MotorcycleRental.Bussiness.Services
 
             var channel = _rabbitMq.ConnectChannel();
             
+            order.CreationDate = DateTime.UtcNow;
+
             await _orderRepository.Add(order);
 
             foreach (var deliveryMan in deliveryMenAvailable)
@@ -67,7 +69,7 @@ namespace MotorcycleRental.Bussiness.Services
 
         public async Task TakeOrderAsync(Guid orderId, Guid deliveryManId)
         {
-            var deliveryMan = _deliveryManRepository.GetById(deliveryManId).Result;
+            var deliveryMan = _deliveryManRepository.GetByFirst(g => g.UserId == deliveryManId).Result;
             var order = _orderRepository.GetById(orderId).Result;
 
             if (deliveryMan == null)
@@ -87,7 +89,7 @@ namespace MotorcycleRental.Bussiness.Services
             }
 
 
-            order.DeliveryManId = deliveryManId;
+            order.DeliveryManId = deliveryMan.Id;
             order.Status = Order.Situations.Accepted;
             await _orderRepository.Update(order);
         }
@@ -95,13 +97,13 @@ namespace MotorcycleRental.Bussiness.Services
         public async Task FinalizeOrderAsync(Guid orderId, Guid deliveryManId)
         {
             var order = _orderRepository.GetById(orderId).Result;
-
+            var deliveryMan = _deliveryManRepository.GetByFirst(g => g.UserId == deliveryManId).Result;
             if (order == null)
             {
                 Notify("Order not found");
                 return;
             }
-            if (order.DeliveryManId != deliveryManId)
+            if (order.DeliveryManId != deliveryMan.Id)
             {
                 Notify("Only the responsible by the order can finalize");
                 return;

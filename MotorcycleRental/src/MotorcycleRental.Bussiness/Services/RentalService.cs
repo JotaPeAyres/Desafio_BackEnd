@@ -73,11 +73,12 @@ namespace MotorcycleRental.Bussiness.Services
             var finalCust = 0.0m;
             if(rental.ExpectedFinalDate > endDate)
             {
-                var daysRented = DateTime.UtcNow.Date - rental.BeginDate;
-                var custRented  = daysRented.Days * RentalValues(rental.RentalPlan); 
+                var dailyValue = RentalValues(rental.RentalPlan);
+                var daysRented = endDate.Date - rental.BeginDate.Date;
+                var custRented  = daysRented.Days * dailyValue; 
 
-                var daysLeft = DateTime.UtcNow.Date - endDate.Date;
-                var fineCust = daysLeft.Days * PenaltyChargePercentage(rental.RentalPlan);
+                var daysLeft = endDate.Date - DateTime.UtcNow.Date;
+                var fineCust = (daysLeft.Days * dailyValue) * PenaltyChargePercentage(rental.RentalPlan);
 
                 finalCust = custRented + fineCust;
                 rental.TotalCust = finalCust;

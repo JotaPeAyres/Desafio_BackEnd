@@ -30,12 +30,16 @@ namespace MotorcycleRental.Api.Controllers
             _userManager = userManager;
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-all")]
         public async Task<IEnumerable<DeliveryManViewModel>> GetDeliveryMenAsync()
         {
             return _mapper.Map<IEnumerable<DeliveryManViewModel>>(await _deliveryManRepository.GetAll());
         }
 
+
+        [Authorize(Roles = "Admin")]
         [HttpGet("get-notified")]
         public async Task<ActionResult<IEnumerable<DeliveryManViewModel>>> GetNotifiedDeliveryMan(Guid orderId)
         {
@@ -52,10 +56,12 @@ namespace MotorcycleRental.Api.Controllers
             return CustomResponse(deliveryMen);
         }
 
+
+        [Authorize(Roles = "Driver")]
         [HttpPost]
         public async Task<ActionResult<DeliveryManViewModel>> RegisterDeliveryManAsync(DeliveryManViewModel deliveryManViewModel)
         {
-            if (!ModelState.IsValid) return CustomResponse();
+            if (!ModelState.IsValid) return CustomResponse(ModelState);
 
             var userId = _userManager.GetUserAsync(User).Result.Id;
 
@@ -64,6 +70,8 @@ namespace MotorcycleRental.Api.Controllers
             return CustomResponse(deliveryManViewModel);
         }
 
+
+        [Authorize(Roles = "Driver")]
         [HttpPut]
         public async Task<ActionResult> UpdateDriverLicense(IFormFile file)
         {

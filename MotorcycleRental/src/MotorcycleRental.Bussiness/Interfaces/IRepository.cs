@@ -12,7 +12,8 @@ namespace MotorcycleRental.Bussiness.Interfaces
     {
         Task<TEntity> GetById(Guid Id);
         Task<List<TEntity>> GetAll();
-        Task<IEnumerable<TEntity>> GetBy(Expression<Func<TEntity, bool>> predicate);
+        Task<TEntity> GetByFirst(Expression<Func<TEntity, bool>> predicate);
+        Task<List<TEntity>> GetBy(Expression<Func<TEntity, bool>> predicate);
         Task Add(TEntity entity);
         Task Update(TEntity entity);
         Task Delete(Guid id);

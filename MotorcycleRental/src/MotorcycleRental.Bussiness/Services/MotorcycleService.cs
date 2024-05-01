@@ -29,11 +29,23 @@ namespace MotorcycleRental.Bussiness.Services
         {
             if (!ExecuteValidation(new MotorcycleValidation(), motorcycle)) return;
 
-            if (_motorcycleRepository.GetBy(g => g.LicensePlate == motorcycle.LicensePlate).Result.Any())
+            var oldMotorcycle = _motorcycleRepository.GetByFirst(g => g.LicensePlate == motorcycle.LicensePlate).Result;
+
+            if(oldMotorcycle == null)
+            {
+                Notify("Motorcycle not found");
+                return;
+            }
+
+            if (_motorcycleRepository.GetBy(g => g.LicensePlate == motorcycle.LicensePlate && g.Id != oldMotorcycle.Id).Result.Any())
             {
                 Notify("There is already a motorcycle with this plate");
                 return;
             }
+
+            oldMotorcycle.LicensePlate = motorcycle.LicensePlate;
+            oldMotorcycle.Year = motorcycle.Year;
+            oldMotorcycle.Model = motorcycle.Model;
 
             await _motorcycleRepository.Update(motorcycle);
         }
@@ -47,6 +59,22 @@ namespace MotorcycleRental.Bussiness.Services
             }
 
             await _motorcycleRepository.Delete(Id);
+        }
+
+        public async Task<IEnumerable<Motorcycle>> GetAll()
+        {
+            return await _motorcycleRepository.GetAll();
+        }
+
+        public async Task<Motorcycle> GetByPlate(string plate)
+        {
+            if (string.IsNullOrEmpty(plate))
+            {
+                Notify("It's necessary to pass the plate");
+                return null;
+            }
+
+            return await _motorcycleRepository.GetByFirst(g => g.LicensePlate == plate);
         }
     }
 }

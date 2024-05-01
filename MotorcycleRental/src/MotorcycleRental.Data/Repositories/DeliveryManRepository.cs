@@ -16,12 +16,14 @@ namespace MotorcycleRental.Data.Repositories
 
         public IEnumerable<DeliveryMan> GetDeliveryManAvailable()
         {
-            var deliveryMenWithRentIds = Db.Rentals.Where(w => !w.IsFinished)
-                .Select(s => s.Id);
+            var deliveryMenWithRentIds = Db.Rentals.Where(w => !w.IsFinished).Select(s => s.DeliveryManId);
 
-            return Db.Orders
-                .Include(i => i.DeliveryMan)
-                .Where(w => w.DeliveryManId != null && !deliveryMenWithRentIds.Contains((Guid)w.DeliveryManId)).Select(s => s.DeliveryMan);
+            var deliveryMen = Db.DeliveryMen.Where(w => deliveryMenWithRentIds.Contains(w.Id));
+
+            var deliveryManWithOrder = Db.Orders.Include(i => i.DeliveryMan)
+                .Where(w => w.DeliveryManId != null).Select(s => s.DeliveryManId);
+
+            return deliveryMen.Where(w => !deliveryManWithOrder.Contains(w.Id));
         }
 
         public IEnumerable<DeliveryMan> GetNotifiedDeliveryMan(Guid orderId)

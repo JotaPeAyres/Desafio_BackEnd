@@ -21,7 +21,7 @@ namespace MotorcycleRental.Api.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly AppSettings _appSettings;
         public AuthController(INotifier notifier,
-                            UserManager<IdentityUser> userManager, 
+                            UserManager<IdentityUser> userManager,
                             SignInManager<IdentityUser> signInManager,
                             IOptions<AppSettings> appSettings) : base(notifier)
         {
@@ -47,7 +47,7 @@ namespace MotorcycleRental.Api.Controllers
 
             var result = await _userManager.CreateAsync(user, registerUser.Password);
 
-            if(result.Succeeded)
+            if (result.Succeeded)
             {
                 await _userManager.AddToRoleAsync(user, "Admin");
                 await _signInManager.SignInAsync(user, false);
@@ -109,39 +109,48 @@ namespace MotorcycleRental.Api.Controllers
                 NotifyError("User temporarily blocked due to invalid attempts");
                 return CustomResponse(loginUser);
             }
-            else{
+            else
+            {
                 NotifyError("Incorrect username or password");
                 return CustomResponse(loginUser);
             }
         }
-    
+
         private async Task<string> GenerateJwt(string userName)
         {
-            var user = await _userManager.FindByNameAsync(userName);
-            var claims = await _userManager.GetClaimsAsync(user);
-            var roles = await _userManager.GetRolesAsync(user);
-
-            foreach( var role in roles)
+            try
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                var user = await _userManager.FindByNameAsync(userName);
+
+                if (user == null)
+                    return null;
+
+                var handler = new JwtSecurityTokenHandler();
+
+                var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("9eb4500d-fe84-4448-9536-25b8b1966499" ?? string.Empty));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                DateTime currentTimeUtc = DateTime.UtcNow;
+
+                var expiration = currentTimeUtc.AddHours(8);
+
+                //var claimsUser = await GenerateClaims(user);
+
+                var tokenDescription = new SecurityTokenDescriptor
+                {
+                    //Subject = claimsUser,
+                    SigningCredentials = creds,
+                    Expires = DateTime.UtcNow.AddHours(4)
+                };
+
+                var token = handler.CreateToken(tokenDescription);
+
+                return handler.WriteToken(token);
             }
-            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-
-            var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
+            catch (Exception ex)
             {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(_appSettings.ExpirationHours),
-                Issuer = _appSettings.Issuer,
-                Audience = _appSettings.ValidIn,
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            });
-
-            var encodedToken = tokenHandler.WriteToken(token);   
-
-            return encodedToken;
+                return null;
+            }
         }
     }
 }

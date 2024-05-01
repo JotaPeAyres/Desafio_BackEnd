@@ -8,19 +8,16 @@ namespace MotorcycleRental.Api.RabbitMq
 {
     public class RabbitMqConsumer : BackgroundService
     {
-        private readonly IRabbitMqConfig _rabbitMqConfig;    
-        private readonly IOrderService _orderService;
-        public RabbitMqConsumer(IRabbitMqConfig rabbitMqConfig, IOrderService orderService)
+        private readonly IServiceScopeFactory _scopeFactory;
+        public RabbitMqConsumer(IServiceScopeFactory scopeFactory)
         {
-            _rabbitMqConfig = rabbitMqConfig;
-            _orderService = orderService;
-
+            _scopeFactory = scopeFactory;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
 
-            var channel = _rabbitMqConfig.ConnectChannel();
+            var channel = _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<IRabbitMqConfig>().ConnectChannel();
 
             var consumer = new EventingBasicConsumer(channel);
 
@@ -28,7 +25,7 @@ namespace MotorcycleRental.Api.RabbitMq
             {
                 ReadOnlyMemory<byte> body = ea.Body;
                 var message = Encoding.UTF8.GetString(body.ToArray());
-                _orderService.ReceiveNotification(message);
+                _scopeFactory.CreateScope().ServiceProvider.GetRequiredService<IOrderService>().ReceiveNotification(message);
             };
 
             channel.BasicConsume(queue: "orderQueue", autoAck: true, consumer: consumer);

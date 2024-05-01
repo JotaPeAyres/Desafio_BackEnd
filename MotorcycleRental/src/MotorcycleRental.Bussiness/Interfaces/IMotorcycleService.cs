@@ -12,5 +12,6 @@ namespace MotorcycleRental.Bussiness.Interfaces
         Task AddMotorcycleAsync(Motorcycle motorcycle);
         Task UpdateMotorcycleAsync(Motorcycle motorcycle);
         Task DeleteMotorcycleAsync(Guid id);
+        Task<Motorcycle> GetByPlate(string plate);
     }
 }

@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace MotorcycleRental.Api.Controllers
 {
-    //[Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class OrderController : MainController
@@ -29,6 +29,7 @@ namespace MotorcycleRental.Api.Controllers
             _userManager = userManager;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("add-order")]
         public async Task<ActionResult> AddOrderAsync(OrderViewModel orderViewModel)
         {
@@ -39,6 +40,7 @@ namespace MotorcycleRental.Api.Controllers
             return CustomResponse();
         }
 
+        [Authorize(Roles = "Driver")]
         [HttpPut("take-order")]
         public async Task<ActionResult> TakeOrderAsync(Guid orderId)
         {
@@ -55,6 +57,7 @@ namespace MotorcycleRental.Api.Controllers
             return CustomResponse();
         }
 
+        [Authorize(Roles = "Driver")]
         [HttpPut("finalize-order")]
         public async Task<ActionResult> FinalizeOrderAsync(Guid orderId)
         {
@@ -66,7 +69,7 @@ namespace MotorcycleRental.Api.Controllers
 
             var userId = _userManager.GetUserAsync(User).Result.Id;
 
-            _orderService.TakeOrderAsync(orderId, Guid.Parse(userId));
+            _orderService.FinalizeOrderAsync(orderId, Guid.Parse(userId));
 
             return CustomResponse();
         }

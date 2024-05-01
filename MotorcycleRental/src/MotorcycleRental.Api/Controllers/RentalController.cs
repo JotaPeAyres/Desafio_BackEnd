@@ -23,6 +23,8 @@ namespace MotorcycleRental.Api.Controllers
             _mapper = mapper;
         }
 
+
+        [Authorize(Roles = "Driver")]
         [HttpPost]
         public async Task<ActionResult> AddRentalAsync(RentalViewModel rentalViewModel)
         {
@@ -33,8 +35,10 @@ namespace MotorcycleRental.Api.Controllers
             return CustomResponse();
         }
 
+
+        [Authorize(Roles = "Driver")]
         [HttpPut]
-        public async Task<ActionResult<string>> FinishRentalAsync([FromBody] Guid rentalId, DateTime endDate)
+        public async Task<ActionResult<string>> FinishRentalAsync(Guid rentalId, DateTime endDate)
         {
             if(rentalId == null || endDate == null)
             {

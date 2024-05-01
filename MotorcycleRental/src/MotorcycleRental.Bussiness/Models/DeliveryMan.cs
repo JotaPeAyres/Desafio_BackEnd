@@ -14,7 +14,7 @@ namespace MotorcycleRental.Bussiness.Models
         public DateTime Birthdate { get; set; }
         public int LicenseNumber { get; set; }
         public LicenseTypes LicenseType { get; set; }
-        public string LicenseImage { get; set; }
+        public string? LicenseImage { get; set; }
 
 
         public enum LicenseTypes 

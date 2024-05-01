@@ -9,7 +9,7 @@ using MotorcycleRental.Bussiness.Models;
 namespace MotorcycleRental.Api.Controllers
 {
 
-    [Authorize]
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/[Controller]")]
     public class MotorcycleController : MainController
@@ -35,9 +35,9 @@ namespace MotorcycleRental.Api.Controllers
         }
 
         [HttpGet("GetMotorcyclesByPlate")]
-        public async Task<ActionResult<MotorcycleViewModel>> GetMotorcyclesByPlateAsync(string plate)
+        public async Task<ActionResult<Motorcycle>> GetMotorcyclesByPlateAsync(string plate)
         {
-            var motorcycle = await GetMotorcycle(plate);
+            var motorcycle = await _motorcycleService.GetByPlate(plate);
 
             if (motorcycle == null) return NotFound();
 
@@ -57,7 +57,11 @@ namespace MotorcycleRental.Api.Controllers
         [HttpPut]
         public async Task<ActionResult> UpdateMotorcycleAsync(string plate, MotorcycleViewModel motorcycleViewModel)
         {
-            if (plate != motorcycleViewModel.LicensePlate) return BadRequest();
+            if (plate != motorcycleViewModel.LicensePlate)
+            {
+                NotifyError("Plate is divergent");
+                return CustomResponse();
+            }
 
             if (!ModelState.IsValid) return CustomResponse(ModelState);
 
@@ -69,18 +73,13 @@ namespace MotorcycleRental.Api.Controllers
         [HttpDelete]
         public async Task<ActionResult<MotorcycleViewModel>> DeleteMotorcycleAsync(string plate) 
         {
-            var motorcycle = await GetMotorcycle(plate);
+            var motorcycle = await _motorcycleService.GetByPlate(plate);
 
             if (motorcycle == null) return NotFound();
 
             await _motorcycleService.DeleteMotorcycleAsync(motorcycle.Id);
 
             return CustomResponse();
-        }
-
-        private async Task<MotorcycleViewModel> GetMotorcycle(string plate)
-        {
-            return _mapper.Map<MotorcycleViewModel>(await _motorcycleRepository.GetBy(g => g.LicensePlate == plate));
         }
     }
 }

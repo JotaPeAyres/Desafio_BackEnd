@@ -40,7 +40,7 @@ builder.Services.AddSwaggerGen(c =>
                     Id = "Bearer"
                 }
             },
-            new string[] {}
+            new List<string>()
         }
     });
 });
@@ -56,37 +56,29 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-//builder.Services.AddDefaultIdentity<IdentityUser>()
-//    .AddRoles<IdentityRole>()
-//    .AddEntityFrameworkStores<ApiDbContext>()
-//    .AddDefaultTokenProviders();
+builder.Services.AddAuthentication(opt =>
+{
+    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes("9eb4500d-fe84-4448-9536-25b8b1966499" ?? string.Empty)),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
 
-// JWT
-//var appSettingsSection = builder.Configuration.GetSection("AppSettings");
-//builder.Services.Configure<AppSettings>(appSettingsSection);
-
-//var appSettings = appSettingsSection.Get<AppSettings>();
-//var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(options =>
-//{
-//    options.RequireHttpsMetadata = false;
-//    options.SaveToken = true;
-//    options.TokenValidationParameters = new TokenValidationParameters 
-//    { 
-//        ValidateIssuerSigningKey = true,
-//        IssuerSigningKey = new SymmetricSecurityKey(key),
-//        ValidateIssuer = false,
-//        ValidateAudience = false,
-//    };
-//});
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddRoles<IdentityRole>()
+    .AddEntityFrameworkStores<ApiDbContext>();
 
 builder.Services.ResolveDependencies();
-builder.IdentityConfigure();
+// builder.IdentityConfigure();
 
 var app = builder.Build();
 
@@ -99,30 +91,14 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-app.UseAuthentication();
-
 //app.UseHsts();
 
 app.MapControllers();
 
 app.UseDeveloperExceptionPage();
 
-using (var scoppe = app.Services.CreateScope())
-{
-    var roleManager = scoppe.ServiceProvider.GetRequiredService <RoleManager<IdentityRole>>();
-
-    var roles = new[] { "Admin", "Driver" };
-
-    foreach (var role in roles)
-    {
-        if (!await roleManager.RoleExistsAsync(role))
-            await roleManager.CreateAsync(new IdentityRole(role));
-    }
-}
-
-using var scope = app.Services.CreateScope();
-var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-await context.Database.MigrateAsync();
+// using var scope = app.Services.CreateScope();
+// var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+// await context.Database.MigrateAsync();
 
 app.Run();

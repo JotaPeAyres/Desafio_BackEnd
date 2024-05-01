@@ -1,4 +1,5 @@
-﻿using MotorcycleRental.Bussiness.Interfaces;
+﻿using MotorcycleRental.Api.RabbitMq;
+using MotorcycleRental.Bussiness.Interfaces;
 using MotorcycleRental.Bussiness.Notifications;
 using MotorcycleRental.Bussiness.RabbitMq;
 using MotorcycleRental.Bussiness.Services;
@@ -28,7 +29,7 @@ namespace MotorcycleRental.Api.Configuration
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IRabbitMqConfig, RabbiMqConfig>();
 
-            //services.AddHostedService<RabbiMqConfig>();
+            services.AddHostedService<RabbitMqConsumer>();
 
             return services;
         }            
