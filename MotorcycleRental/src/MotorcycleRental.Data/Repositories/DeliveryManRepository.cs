@@ -23,5 +23,12 @@ namespace MotorcycleRental.Data.Repositories
                 .Include(i => i.DeliveryMan)
                 .Where(w => w.DeliveryManId != null && !deliveryMenWithRentIds.Contains((Guid)w.DeliveryManId)).Select(s => s.DeliveryMan);
         }
+
+        public IEnumerable<DeliveryMan> GetNotifiedDeliveryMan(Guid orderId)
+        {
+            var deliveryManId = Db.OrderNotifications.Where(w => w.OrderId == orderId).Select(s => s.DeliveryManId);
+
+            return Db.DeliveryMen.Where(w => deliveryManId.Contains(w.Id));
+        }
     }
 }

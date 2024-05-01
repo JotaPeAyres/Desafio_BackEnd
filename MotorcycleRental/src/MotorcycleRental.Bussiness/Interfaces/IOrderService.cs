@@ -10,5 +10,8 @@ namespace MotorcycleRental.Bussiness.Interfaces
     public interface IOrderService
     {
         Task AddOrderAsync(Order order);
+        Task TakeOrderAsync(Guid orderId, Guid deliveryManId);
+        Task FinalizeOrderAsync(Guid orderId, Guid deliveryManId);
+        void ReceiveNotification(string message);
     }
 }

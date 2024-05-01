@@ -1,4 +1,5 @@
 ﻿using FluentValidation.Validators;
+using MotorcycleRental.Bussiness.Interfaces;
 using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MotorcycleRental.Bussiness.RabbitMq
 {
-    public class RabbiMqConfig
+    public class RabbiMqConfig : IRabbitMqConfig
     {
         public IModel ConnectChannel()
         {

@@ -50,8 +50,8 @@ namespace MotorcycleRental.Bussiness.Services
                 return;
             }
 
-            var startDate = DateTime.Now.AddDays(1);
-            var endDate = DateTime.Now.AddDays(1 + (int)rental.RentalPlan);
+            var startDate = DateTime.UtcNow.AddDays(1);
+            var endDate = DateTime.UtcNow.AddDays(1 + (int)rental.RentalPlan);
 
             rental.EndDate = endDate;
             rental.BeginDate = startDate;
@@ -73,10 +73,10 @@ namespace MotorcycleRental.Bussiness.Services
             var finalCust = 0.0m;
             if(rental.ExpectedFinalDate > endDate)
             {
-                var daysRented = DateTime.Now.Date - rental.BeginDate;
+                var daysRented = DateTime.UtcNow.Date - rental.BeginDate;
                 var custRented  = daysRented.Days * RentalValues(rental.RentalPlan); 
 
-                var daysLeft = DateTime.Now.Date - endDate.Date;
+                var daysLeft = DateTime.UtcNow.Date - endDate.Date;
                 var fineCust = daysLeft.Days * PenaltyChargePercentage(rental.RentalPlan);
 
                 finalCust = custRented + fineCust;

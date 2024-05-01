@@ -9,7 +9,7 @@ using MotorcycleRental.Bussiness.Models;
 namespace MotorcycleRental.Api.Controllers
 {
 
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [ApiController]
     [Route("api/[Controller]")]
     public class MotorcycleController : MainController
@@ -28,6 +28,7 @@ namespace MotorcycleRental.Api.Controllers
         }
 
         [HttpGet("GetMotorcycles")]
+        [ProducesResponseType(typeof(string), StatusCodes.Status401Unauthorized)]
         public async Task<IEnumerable<MotorcycleViewModel>> GetMotorcyclesAsync()
         {
             return _mapper.Map<IEnumerable<MotorcycleViewModel>>(await _motorcycleRepository.GetAll());

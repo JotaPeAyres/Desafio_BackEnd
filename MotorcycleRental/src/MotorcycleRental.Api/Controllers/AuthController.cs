@@ -115,9 +115,9 @@ namespace MotorcycleRental.Api.Controllers
             }
         }
     
-        private async Task<string> GenerateJwt(string email)
+        private async Task<string> GenerateJwt(string userName)
         {
-            var user = await _userManager.FindByEmailAsync(email);
+            var user = await _userManager.FindByNameAsync(userName);
             var claims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
 
@@ -125,19 +125,17 @@ namespace MotorcycleRental.Api.Controllers
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
-
-            var identityClaims = new ClaimsIdentity();
-            identityClaims.AddClaims(claims);
+            claims.Add(new Claim(ClaimTypes.Name, user.UserName));
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
 
             var token = tokenHandler.CreateToken(new SecurityTokenDescriptor
             {
-                Issuer = _appSettings.Sender,
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(_appSettings.ExpirationHours),
+                Issuer = _appSettings.Issuer,
                 Audience = _appSettings.ValidIn,
-                Subject = identityClaims,
-                Expires = DateTime.Now.AddDays(_appSettings.ExpirationHours),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             });
 

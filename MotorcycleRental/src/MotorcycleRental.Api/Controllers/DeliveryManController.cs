@@ -37,15 +37,19 @@ namespace MotorcycleRental.Api.Controllers
         }
 
         [HttpGet("get-notified")]
-        /////////////// precisa arrumar
-        public async Task<ActionResult<IEnumerable<DeliveryManViewModel>>> GetNotifiedDeliveryMan()
+        public async Task<ActionResult<IEnumerable<DeliveryManViewModel>>> GetNotifiedDeliveryMan(Guid orderId)
         {
-            var deliveryMen = _mapper.Map<IEnumerable<DeliveryManViewModel>>(await _deliveryManRepository.GetAll());
+            if (orderId == null)
+            {
+                NotifyError("It's necessary to pass the orderId");
+                return CustomResponse();
+            }
+            var deliveryMen = await _deliveryManService.GetNotifiedDeliveryMan(orderId);
 
             if (deliveryMen == null)
                 return NotFound();
 
-            return Ok(deliveryMen);
+            return CustomResponse(deliveryMen);
         }
 
         [HttpPost]
@@ -61,46 +65,43 @@ namespace MotorcycleRental.Api.Controllers
         }
 
         [HttpPut]
-        public async Task<ActionResult> UpdateDriverLicense(string image, Guid deliveryManId)
+        public async Task<ActionResult> UpdateDriverLicense(IFormFile file)
         {
             if(ModelState.IsValid) return CustomResponse(ModelState);
 
-            var imageName = Guid.NewGuid() + "_" + image;
-            //if(await !UploadImage(image, imageName))
-            //{
-            //    return CustomResponse();
-            //}
+            var userId = _userManager.GetUserAsync(User).Result.Id;
+
+            if (file == null || file.Length <= 0)
+            {
+                NotifyError("Provide an image for registration");
+                return CustomResponse();
+            }
+
+            var fileExtension = file.FileName.Split(".")[1];
+            if (fileExtension != "png" && fileExtension != "bmp")
+            {
+                NotifyError("File extension not accept");
+                return CustomResponse();
+            }
+
+            var imageName = Guid.NewGuid() + "_" + file.FileName;
+
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imageName);
+
+            if (System.IO.File.Exists(path))
+            {
+                NotifyError("There is already an image with this name");
+                return CustomResponse();
+            }
+
+            using (var stream = new FileStream(path, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            await _deliveryManService.UpdateDriverLicence(imageName, Guid.Parse(userId));
+
             return CustomResponse();
         }
-
-        //private async Task <bool> UploadImage(IFormFile file, string imgPrefix)
-        //{
-        //    if (file == null || file.Length <= 0)
-        //    {
-        //        NotifyError("Provide an image for registration");
-        //        return false;
-        //    }
-
-        //    var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images", imgPrefix + file.FileName);
-
-        //    if (System.IO.File.Exists(path))
-        //    {
-        //        ModelState.AddModelError(string.Empty, "There is already an image with this name");
-        //        return false;
-        //    }
-
-        //    using (var stream = new FileStream(path, FileMode.Create))
-        //    {
-        //        await file.CopyToAsync(stream);
-        //    }
-
-        //    return true;
-        //}
-
-        //[HttpPost]
-        //public async Task<ActionResult> AddImage(IFormFile file)
-        //{
-        //    return Ok(file);    
-        //}
     }
 }

@@ -18,30 +18,56 @@ namespace MotorcycleRental.Api.Controllers
     {
         private readonly IOrderService _orderService ;
         private readonly IMapper _mapper;
+        private readonly UserManager<IdentityUser> _userManager;
         public OrderController(INotifier notifier,
                                 IOrderService orderService,
+                                UserManager<IdentityUser> userManager,
                                 IMapper mapper) : base(notifier) 
         {
             _orderService = orderService;
             _mapper = mapper;
+            _userManager = userManager;
         }
 
-        [HttpPost]
+        [HttpPost("add-order")]
         public async Task<ActionResult> AddOrderAsync(OrderViewModel orderViewModel)
         {
             if (!ModelState.IsValid) return CustomResponse();
 
             await _orderService.AddOrderAsync(_mapper.Map<Order>(orderViewModel));
 
-            //{ 
-            //    string message = JsonSerializer.Serialize(orderViewModel);
-            //    var body = Encoding.UTF8.GetBytes(message);
+            return CustomResponse();
+        }
 
-            //    channel.BasicPublish(exchange: "",
-            //        routingKey: "orderQueue",
-            //        basicProperties: null,
-            //        body: body);
-            //}
+        [HttpPut("take-order")]
+        public async Task<ActionResult> TakeOrderAsync(Guid orderId)
+        {
+            if (orderId == null)
+            {
+                NotifyError("It's necessary to pass the orderId");
+                return CustomResponse();
+            }
+
+            var userId = _userManager.GetUserAsync(User).Result.Id;
+
+            _orderService.TakeOrderAsync(orderId, Guid.Parse(userId));
+
+            return CustomResponse();
+        }
+
+        [HttpPut("finalize-order")]
+        public async Task<ActionResult> FinalizeOrderAsync(Guid orderId)
+        {
+            if (orderId == null)
+            {
+                NotifyError("It's necessary to pass the orderId");
+                return CustomResponse();
+            }
+
+            var userId = _userManager.GetUserAsync(User).Result.Id;
+
+            _orderService.TakeOrderAsync(orderId, Guid.Parse(userId));
+
             return CustomResponse();
         }
     }

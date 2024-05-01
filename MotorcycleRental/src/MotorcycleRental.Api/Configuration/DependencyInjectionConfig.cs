@@ -1,5 +1,6 @@
 ﻿using MotorcycleRental.Bussiness.Interfaces;
 using MotorcycleRental.Bussiness.Notifications;
+using MotorcycleRental.Bussiness.RabbitMq;
 using MotorcycleRental.Bussiness.Services;
 using MotorcycleRental.Data.Context;
 using MotorcycleRental.Data.Repositories;
@@ -17,6 +18,7 @@ namespace MotorcycleRental.Api.Configuration
             services.AddScoped<IMotorcycleRepository, MotorcycleRepository>();
             services.AddScoped<IRentalRepository, RentalRepository>();
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderNotificationRepository, OrderNotificationRepository>();
             services.AddScoped<INotifier, Notifier>();
 
             // Services
@@ -24,6 +26,9 @@ namespace MotorcycleRental.Api.Configuration
             services.AddScoped<IDeliveryManService, DeliveryManService>();
             services.AddScoped<IRentalService, RentalService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IRabbitMqConfig, RabbiMqConfig>();
+
+            //services.AddHostedService<RabbiMqConfig>();
 
             return services;
         }            

@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 
 namespace MotorcycleRental.Bussiness.Interfaces
 {
-    public interface IDeliveryManRepository : IRepository<DeliveryMan>
+    public interface IOrderNotificationRepository : IRepository<OrderNotification>
     {
-        IEnumerable<DeliveryMan> GetDeliveryManAvailable();
-        IEnumerable<DeliveryMan> GetNotifiedDeliveryMan(Guid orderId);
     }
 }

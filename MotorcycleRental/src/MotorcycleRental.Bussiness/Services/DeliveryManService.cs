@@ -38,5 +38,23 @@ namespace MotorcycleRental.Bussiness.Services
 
             await _deliveryManRepository.Add(deliveryMan);
         }
+
+        public async Task<IEnumerable<DeliveryMan>> GetNotifiedDeliveryMan(Guid orderId)
+        {
+            if (orderId == null)
+            {
+                Notify("It's necessary to pass the orderId");
+                return null;
+            }
+
+            return _deliveryManRepository.GetNotifiedDeliveryMan(orderId);
+        }
+
+        public async Task UpdateDriverLicence(string imageName, Guid deliveryManId)
+        {
+            var deliveryMan = _deliveryManRepository.GetById(deliveryManId).Result;
+            deliveryMan.LicenseImage = imageName;
+            await _deliveryManRepository.Update(deliveryMan);
+        }
     }
 }

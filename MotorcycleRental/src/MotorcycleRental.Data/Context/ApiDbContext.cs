@@ -17,5 +17,6 @@ namespace MotorcycleRental.Data.Context
         public DbSet<DeliveryMan> DeliveryMen { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Rental> Rentals { get; set; }
+        public DbSet<OrderNotification> OrderNotifications{ get; set; }
     }
 }
