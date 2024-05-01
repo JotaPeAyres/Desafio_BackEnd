@@ -8,11 +8,12 @@ namespace MotorcycleRental.Bussiness.Models
 {
     public abstract class Entity
     {
-        //protected Entity() 
-        //{
-        //    Id = new Guid.NewGuid();
-        //}
+        protected Entity()
+        {
+            Id = Guid.NewGuid();
+        }
 
         public Guid Id { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

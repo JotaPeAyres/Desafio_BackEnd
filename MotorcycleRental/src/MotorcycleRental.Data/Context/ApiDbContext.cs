@@ -14,5 +14,8 @@ namespace MotorcycleRental.Data.Context
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) { }
 
         public DbSet<Motorcycle> Motorcycles { get; set; }
+        public DbSet<DeliveryMan> DeliveryMen { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<Rental> Rentals { get; set; }
     }
 }

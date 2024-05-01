@@ -1,13 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace MotorcycleRental.Api
+namespace MotorcycleRental.Api.ViewModels
 {
     public class MotorcycleViewModel
     {
         [Key]
         public Guid Id { get; set; }
 
-        [Required(ErrorMessage ="O campo {0} é obrigatório")]
+        [Required(ErrorMessage = "O campo {0} é obrigatório")]
         public int Year { get; set; }
 
         [Required(ErrorMessage = "O campo {0} é obrigatório")]

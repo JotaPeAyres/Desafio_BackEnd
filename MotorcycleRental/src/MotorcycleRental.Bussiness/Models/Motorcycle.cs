@@ -8,7 +8,7 @@ namespace MotorcycleRental.Bussiness.Models
 {
     public class Motorcycle : Entity
     {
-        public int Year { get; set; }
+        public string Year { get; set; }
         public string Model { get; set; }
         public string LicensePlate { get; set; }
     }
