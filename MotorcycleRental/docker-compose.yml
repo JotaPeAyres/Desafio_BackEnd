@@ -1,0 +1,55 @@
+version: "3"
+
+networks:
+  dockerapi-dev:
+    driver: bridge
+
+services:
+  api:
+    image: motorcyclerental-api:latest
+    restart: always
+    container_name: "API"
+    depends_on:
+      - postgres_image
+      - rabbit_mq_image
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    volumes:
+      - documentsImageVolume:/app/data
+    environment:
+      DB_CONNECTION_STRING: "Host=postgres_image;Port=5432;Database=postgres;User ID=postgres;Password=MotRent1@3"
+    networks:
+      - dockerapi-dev
+  
+  postgres_image:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "MotRent1@3$"
+      POSTGRES_DB: "postgres"
+    container_name: "PostgreSQL"
+    volumes:
+      - db_volume:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - dockerapi-dev
+  
+  rabbit_mq_image:
+    image: "rabbitmq:3.13-management"
+    container_name: "RabbitMQ"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    restart: always
+    networks:
+      - dockerapi-dev
+
+volumes:
+  db_volume:
+  documentsImageVolume:
