@@ -7,7 +7,13 @@ O projeto "Sistema de Aluguel de Motos" é uma aplicação web que oferece servi
  - .NET Sdk instalado na máquina
  - PostgreSQL instalado e configurado
  - RabbitMQ instalado e estar sendo executado na sua máquina
-
+ - Docker instalado
+   
+ ## Rodando o projeto pelo Docker
+ 1. Clone o repositório.
+ 2. Acesse a pasta do projeto pelo terminal
+ 3. Rode o docker compose pelo terminal
+    
  ## Rodando o projeto
  1. Clone o repositório.
  2. Abra o no Visual Studio ou uma IDE compatível
