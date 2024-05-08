@@ -21,7 +21,7 @@ services:
     volumes:
       - documentsImageVolume:/app/data
     environment:
-      DB_CONNECTION_STRING: "Host=postgres_image;Port=5432;Database=postgres;User ID=postgres;Password=MotRent1@3"
+      DB_CONNECTION_STRING: "Host=postgres_image;Port=5432;Database=postgres;User ID=postgres;Password=MotRent1@3$"
     networks:
       - dockerapi-dev
   

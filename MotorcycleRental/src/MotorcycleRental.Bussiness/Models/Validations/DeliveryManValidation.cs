@@ -16,7 +16,7 @@ namespace MotorcycleRental.Bussiness.Models.Validations
                 .Length(2, 200).WithMessage("The size of the {PropertyName} field must be between {MinLength} and {MaxLength}");
             
             RuleFor(f => DocumentValidation.ValidateCnpj(f.Document)).Equal(true)
-                .WithMessage("The license plate provided is invalid");
+                .WithMessage("The {PropetyName} is invalid");
             RuleFor(f => f.Document)
                 .NotEmpty().WithMessage("{PropertyName} field is required")
                 .Length(14, 14).WithMessage("The size of the {PropertyName} field must have {MaxLength}");

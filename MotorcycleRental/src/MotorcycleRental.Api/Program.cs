@@ -95,8 +95,21 @@ app.MapControllers();
 
 app.UseDeveloperExceptionPage();
 
-// using var scope = app.Services.CreateScope();
-// var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
-// await context.Database.MigrateAsync();
+using var scope = app.Services.CreateScope();
+var context = scope.ServiceProvider.GetRequiredService<ApiDbContext>();
+await context.Database.MigrateAsync();
+
+using (var scoppe = app.Services.CreateScope())
+{
+    var roleManager = scoppe.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    var roles = new[] { "Admin", "Driver" };
+
+    foreach (var role in roles)
+    {
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+    }
+}
 
 app.Run();
